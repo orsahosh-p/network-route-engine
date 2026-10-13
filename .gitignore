@@ -1,0 +1,15 @@
+# Compiled files
+*.o
+*.a
+
+# Executables
+route-server
+route-client
+
+# Build directory
+build/
+
+# Editor files
+.vscode/
+*.swp
+*~
