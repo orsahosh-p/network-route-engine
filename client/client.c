@@ -38,7 +38,7 @@ int main(void){
 
 	printf("Connected to server!\n");
 
-	const char *message = "HELLO";
+	const char *message = "HELLO\n";
 	size_t length = strlen(message);
 	size_t sent = 0;
 
