@@ -1,7 +1,45 @@
 #include "graph.h"
 #include <stdlib.h>
+#include <inttypes.h>
+#include <stdio.h>
 
 #define HASH_CAPACITY 257
+
+void graph_print(const Graph* graph){
+	if(graph == NULL){
+		printf("Graph is NULL\n");
+		return;
+	}
+
+	printf("\n========== Graph ===========\n");
+	printf("nodes: %zu\n", graph->size);
+
+	for(size_t i = 0; i < graph->size; i++){
+		Node *node = graph->node_list[i];
+
+		printf("Node %" PRIu64 " -> ", node->id);
+
+		Edge *edge = node->edges;
+
+		if(edge == NULL){
+			printf("(no edges)");
+		}
+
+		while(edge != NULL){
+			printf("[%" PRIu64 ", weight=%" PRIu64 "]", edge->to->id, edge->weight);
+
+			edge = edge->next;
+
+			if(edge != NULL){
+				printf(" -> ");
+			}
+		}
+
+		printf("\n");
+	}
+
+	printf("==============================\n\n");
+}
 
 Graph* graph_create(size_t capacity){
 
@@ -117,7 +155,7 @@ bool graph_add_edge(Graph* graph, uint64_t from, uint64_t to, uint64_t weight){
 	forward->to = to_node;
 	forward->weight = weight;
 	forward->next = from_node->edges;
-
+	from_node->edges = forward;
 	// to -> from
 	backward->to = from_node;
 	backward->weight = weight;
