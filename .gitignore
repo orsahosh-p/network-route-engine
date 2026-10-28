@@ -3,6 +3,7 @@
 *.out
 *.a
 *.so
+*.dSYM/
 
 # Executables
 route-server
