@@ -2,7 +2,10 @@
 #define GRAPH_H
 
 #include "hash_table.h"
-#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 typedef struct Node Node;
 typedef struct Edge Edge;
@@ -34,6 +37,6 @@ Node* graph_get_node(Graph *graph, uint64_t id);
 
 bool graph_add_edge(Graph *graph, uint64_t from, uint64_t to, uint64_t weight);
 
-void graph_print(const Graph *graph);
+void graph_print(const Graph *graph, FILE *output);
 
 #endif

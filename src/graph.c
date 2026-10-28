@@ -5,40 +5,40 @@
 
 #define HASH_CAPACITY 257
 
-void graph_print(const Graph* graph){
+void graph_print(const Graph* graph, FILE* output){
 	if(graph == NULL){
-		printf("Graph is NULL\n");
+		fprintf(output, "Graph is NULL\n");
 		return;
 	}
 
-	printf("\n========== Graph ===========\n");
-	printf("nodes: %zu\n", graph->size);
+	fprintf(output, "\n========== Graph ===========\n");
+	fprintf(output, "nodes: %zu\n", graph->size);
 
 	for(size_t i = 0; i < graph->size; i++){
 		Node *node = graph->node_list[i];
 
-		printf("Node %" PRIu64 " -> ", node->id);
+		fprintf(output, "Node %" PRIu64 " -> ", node->id);
 
 		Edge *edge = node->edges;
 
 		if(edge == NULL){
-			printf("(no edges)");
+			fprintf(output, "(no edges)");
 		}
 
 		while(edge != NULL){
-			printf("[%" PRIu64 ", weight=%" PRIu64 "]", edge->to->id, edge->weight);
+			fprintf(output, "[%" PRIu64 ", weight=%" PRIu64 "]", edge->to->id, edge->weight);
 
 			edge = edge->next;
 
 			if(edge != NULL){
-				printf(" -> ");
+				fprintf(output, " -> ");
 			}
 		}
 
-		printf("\n");
+		fprintf(output, "\n");
 	}
 
-	printf("==============================\n\n");
+	fprintf(output, "==============================\n\n");
 }
 
 Graph* graph_create(size_t capacity){
@@ -47,7 +47,7 @@ Graph* graph_create(size_t capacity){
 		return NULL;
 	}
 
-	Graph* graph = malloc(sizeof(Graph));
+	Graph* graph = malloc(sizeof(*graph));
 
 	if(graph == NULL){
 		return NULL;
@@ -91,7 +91,11 @@ bool graph_add_node(Graph* graph, uint64_t id){
 	}
 
 	if(graph->size == graph->capacity){
-		size_t new_capacity = graph->capacity*2;
+		if(graph->capacity > SIZE_MAX / 2 / sizeof(*graph->node_list)){
+			return false;
+		}
+
+		size_t new_capacity = graph->capacity * 2;
 
 		Node** new_list = realloc(graph->node_list, new_capacity * sizeof(Node*));
 
@@ -103,9 +107,9 @@ bool graph_add_node(Graph* graph, uint64_t id){
 		graph->capacity = new_capacity;
 	}
 
-	Node* node = malloc(sizeof(Node));
+	Node* node = malloc(sizeof(*node));
 	if(node == NULL){
-		return NULL;
+		return false;
 	}
 
 	node->id = id;
