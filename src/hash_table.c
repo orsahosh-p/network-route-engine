@@ -6,7 +6,7 @@ static size_t hash(uint64_t key, size_t capacity){
 }
 
 HashTable* hash_table_create(size_t capacity){
-	if(capacity == 0){
+	if(capacity == 0 || capacity > SIZE_MAX / sizeof(HashEntry*)){
 		return NULL;
 	}
 

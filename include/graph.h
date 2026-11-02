@@ -29,6 +29,7 @@ typedef struct Graph{
 	size_t capacity;
 }Graph;
 
+/* The graph owns nodes and edges; returned node pointers are borrowed. */
 Graph* graph_create(size_t capacity);
 void graph_destroy(Graph * graph);
 
@@ -37,6 +38,7 @@ Node* graph_get_node(Graph *graph, uint64_t id);
 
 bool graph_add_edge(Graph *graph, uint64_t from, uint64_t to, uint64_t weight);
 
+/* A NULL output is ignored; a NULL graph prints a diagnostic. */
 void graph_print(const Graph *graph, FILE *output);
 
 #endif

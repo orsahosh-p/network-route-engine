@@ -9,7 +9,6 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
-#include <stdbool.h>
 #include <inttypes.h>
 
 #include "graph.h"

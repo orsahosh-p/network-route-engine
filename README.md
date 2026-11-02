@@ -1,11 +1,31 @@
 # Network Route Engine
 
-A small C11 learning project for Linux: a TCP server maintains a weighted,
-undirected graph in memory. It also builds on macOS using POSIX sockets.
+A TCP-backed weighted graph engine written in C11. Build a graph, look up nodes,
+and inspect connections through an interactive terminal client.
+
+![Network Route Engine: implemented architecture and route-finding and topology functions in progress](network-route-engine-progress.png)
+
+The project connects POSIX networking with graph data structures and strict
+command parsing. Linux is the target platform; it also builds on macOS.
+Despite the name, the current version stores graph topology; it does not yet
+calculate routes or forward network packets.
+
+## At a glance
+
+| Area | Implementation |
+| --- | --- |
+| Transport | TCP on `127.0.0.1:8080`, newline-framed commands |
+| Client | Interactive prompt or one quoted command |
+| Server | One connected client handled at a time |
+| Graph | Weighted, undirected, adjacency lists |
+| Lookup | Hash table with 257 buckets and separate chaining |
+| Storage | In memory; shared across sessions until server restart |
+| Stack | C11, POSIX sockets, Make; Python for network tests |
 
 ## Build and run
 
 Requires a C11 compiler and Make. Python 3.8+ is needed only for network tests.
+No external C libraries or frameworks are required.
 
 From the repository directory, build and start the server:
 
@@ -88,6 +108,7 @@ network-route-engine/
 │   ├── test_core.c
 │   └── test_network.py
 ├── Makefile
+├── network-route-engine-progress.png
 └── README.md
 ```
 
@@ -149,11 +170,14 @@ Each node owns a linked list of outgoing `Edge` records. An undirected connectio
 allocates two records, one for each direction. Both allocations succeed before
 lists are modified. An edge points to a node; it does not own that node.
 
-The graph owns all nodes and edges. `graph_destroy()` frees edge lists, nodes,
-the node array and the hash table. The node array doubles when full; growth is
-checked for allocation-size overflow. The hash table uses 257 fixed buckets.
+The graph owns all nodes and edges; pointers returned by `graph_get_node()`
+are borrowed and must not be freed by callers. `graph_destroy()` frees edge lists,
+nodes, the node array and the hash table. The node array doubles when full; growth is
+checked for allocation-size overflow. Initial graph and hash-table capacities
+are also checked before allocation. The hash table uses 257 fixed buckets.
 `graph_print(graph, output)` writes to a `FILE*`: pass `stdout` for local
-debugging. The server reuses it for `PRINT` through a socket-backed stream.
+debugging. A null output stream is ignored; a null graph prints `Graph is NULL`.
+The server reuses it for `PRINT` through a socket-backed stream.
 
 ### Hash table: `include/hash_table.h`, `src/hash_table.c`
 
@@ -186,7 +210,8 @@ make test
 ```
 
 Core tests cover parser limits and malformed input, hash collisions, replacement,
-removal, graph growth, duplicate nodes, symmetric edges and invalid connections.
+removal, graph growth, duplicate nodes, symmetric edges, invalid connections,
+oversized initial capacities, and empty/null graph output.
 Network tests build their own server and client on port 18080 and cover
 split/batched commands, errors, line limits, reconnection, PRINT and interactive
 sessions. Port 18080 must be available; a normal server on 8080 can keep running.
@@ -198,8 +223,8 @@ UndefinedBehaviorSanitizer:
 make -B test TEST_FLAGS="-fsanitize=address,undefined"
 ```
 
-The current changes were built and tested on macOS with Clang, including the
-sanitizer run. Linux is the target platform; this revision has not yet been
+This revision was built and tested on macOS with Clang, including the
+AddressSanitizer and UndefinedBehaviorSanitizer run. Linux is the target platform; this revision has not yet been
 verified in a Linux environment.
 
 ## Current limits
@@ -213,3 +238,8 @@ verified in a Linux environment.
 
 The project deliberately keeps C11, plain functions and the existing module
 layout rather than adding concurrency or a new framework.
+
+## Work in progress
+
+Implementation of the route-finding algorithm and development of the core
+functions for creating network topologies are currently in progress.
