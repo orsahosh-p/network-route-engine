@@ -57,6 +57,7 @@ static void test_get_node_parser(void){
 
 static void test_table(void){
 	assert(hash_table_create(0) == NULL);
+	assert(hash_table_create(SIZE_MAX / sizeof(HashEntry*) + 1) == NULL);
 	assert(!hash_table_insert(NULL, 0, NULL));
 	assert(!hash_table_remove(NULL, 0));
 	assert(hash_table_get(NULL, 0) == NULL);
@@ -80,11 +81,15 @@ static void test_table(void){
 
 static void test_graph(void){
 	assert(graph_create(0) == NULL);
+	assert(graph_create(SIZE_MAX / sizeof(Node*) + 1) == NULL);
+	assert(graph_get_node(NULL, 1) == NULL);
+	graph_print(NULL, NULL);
 	assert(!graph_add_node(NULL, 1));
 	assert(!graph_add_edge(NULL, 1, 2, 3));
 	graph_destroy(NULL);
 	Graph* graph = graph_create(1);
 	assert(graph != NULL);
+	graph_print(graph, NULL);
 	for(uint64_t i = 0; i < 600; i++){
 		assert(graph_add_node(graph, i));
 		assert(graph_get_node(graph, i) == graph->node_list[i]);
@@ -103,10 +108,36 @@ static void test_graph(void){
 	graph_destroy(graph);
 }
 
+static void test_graph_output(void){
+	FILE *output = tmpfile();
+	assert(output != NULL);
+	Graph *graph = graph_create(1);
+	assert(graph != NULL);
+	graph_print(graph, output);
+	rewind(output);
+	char buffer[1024];
+	size_t length = fread(buffer, 1, sizeof(buffer) - 1, output);
+	assert(!ferror(output));
+	buffer[length] = '\0';
+	assert(strstr(buffer, "nodes: 0\n") != NULL);
+	assert(strstr(buffer, "Node ") == NULL);
+	fclose(output);
+	graph_destroy(graph);
+
+	output = tmpfile();
+	assert(output != NULL);
+	graph_print(NULL, output);
+	rewind(output);
+	assert(fgets(buffer, sizeof(buffer), output) != NULL);
+	assert(strcmp(buffer, "Graph is NULL\n") == 0);
+	fclose(output);
+}
+
 int main(void){
 	test_parser();
 	test_get_node_parser();
 	test_table();
 	test_graph();
+	test_graph_output();
 	return 0;
 }

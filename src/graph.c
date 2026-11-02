@@ -1,11 +1,14 @@
 #include "graph.h"
 #include <stdlib.h>
 #include <inttypes.h>
-#include <stdio.h>
 
 #define HASH_CAPACITY 257
 
 void graph_print(const Graph* graph, FILE* output){
+	if(output == NULL){
+		return;
+	}
+
 	if(graph == NULL){
 		fprintf(output, "Graph is NULL\n");
 		return;
@@ -43,7 +46,7 @@ void graph_print(const Graph* graph, FILE* output){
 
 Graph* graph_create(size_t capacity){
 
-	if(capacity == 0){
+	if(capacity == 0 || capacity > SIZE_MAX / sizeof(Node*)){
 		return NULL;
 	}
 

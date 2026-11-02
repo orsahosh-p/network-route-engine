@@ -1,10 +1,10 @@
 #include <errno.h>
 #include <string.h>
-#include <stdint.h>
 #include <ctype.h>
 #include <stdlib.h>
 
 #include "command.h"
+
 static int parse_uint64(const char **input, uint64_t *result){
 	if(input == NULL || *input == NULL || result == NULL){
 		return -1;

@@ -17,6 +17,7 @@ typedef struct {
 	size_t size;
 } HashTable;
 
+/* Owns entries, not values. Capacity is fixed and must be nonzero. */
 HashTable *hash_table_create(size_t capacity);
 
 bool hash_table_insert(HashTable* table, uint64_t key, void *value);
